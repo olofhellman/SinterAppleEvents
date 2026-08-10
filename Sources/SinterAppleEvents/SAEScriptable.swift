@@ -8,7 +8,7 @@
 
 import Foundation
 
-public class SAEScriptable {
+open class SAEScriptable {
 
     var appContext: SAEApp?
     var app: SAEApp {

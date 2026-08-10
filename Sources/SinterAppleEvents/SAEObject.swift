@@ -8,7 +8,7 @@
 
 import Foundation
  
-public class SAEObject: SAEScriptable {
+open class SAEObject: SAEScriptable {
     
     public func element(ofClass classFcc: FourCharCode, atASIndex idx: Int) -> NSAppleEventDescriptor? {
         let elements = self.elements(ofClass: classFcc)

@@ -12,6 +12,6 @@ public extension FourCharCode {
     static var classDocument: FourCharCode { return FourCharCode(string: "docu")  }
 }
 
-public class SAEDocument: SAEObject {
+open class SAEDocument: SAEObject {
     public static let fcc: FourCharCode = .classDocument
 }

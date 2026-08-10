@@ -10,7 +10,7 @@ import Foundation
 // AppKit is needed for NSRunningApplication
 import AppKit
 
-public class SAEApp : SAEObject {
+open class SAEApp : SAEObject {
     let appObjectSpecifier: AppObjectSpecifier
     let appTargetDescriptor: NSAppleEventDescriptor
 
