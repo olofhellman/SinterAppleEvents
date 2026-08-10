@@ -23,7 +23,7 @@ open class SAEApp : SAEObject {
     
     // SAEObject instances which are not SAEApp have a non-nil appContext
     // and just return that for the app.  SAEApp objects are their own context
-    override var app: SAEApp {
+    override public var app: SAEApp {
         return self
     }
     

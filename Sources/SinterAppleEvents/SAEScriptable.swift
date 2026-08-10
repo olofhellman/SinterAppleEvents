@@ -11,14 +11,14 @@ import Foundation
 open class SAEScriptable {
 
     var appContext: SAEApp?
-    var app: SAEApp {
+    public var app: SAEApp {
         guard let appContext else {
             fatalError("No app context")
         }
         return appContext
     }
     
-    let objSpec: NSAppleEventDescriptor
+    public let objSpec: NSAppleEventDescriptor
     
     public init(app: SAEApp?, objSpec: NSAppleEventDescriptor) {
         self.appContext = app
