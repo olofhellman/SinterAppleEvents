@@ -33,10 +33,10 @@ open class SAEApp : SAEObject {
         // then send a misc/activate event
         let runningApplications = NSRunningApplication.runningApplications(withBundleIdentifier: appObjectSpecifier.appBundleIdentifier)
         if (runningApplications.count == 0) {
-            let runEvent = self.requiredEvent(eventID: .run)
-            guard let _ = try? runEvent.sendEvent(options: [], timeout: 10) else {
-                return false
-            }
+            let bundleID = appObjectSpecifier.appBundleIdentifier
+            guard let appURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) else { return false }
+            let configuration = NSWorkspace.OpenConfiguration()
+            NSWorkspace.shared.openApplication(at: appURL, configuration: configuration, completionHandler: nil)
         }
         
         // send activate
