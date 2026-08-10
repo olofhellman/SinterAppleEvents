@@ -1,6 +1,6 @@
 //
 //  SPObject.swift
-//  SinterPixelsBridge
+//  SinterAppleEvents
 //
 //  Created by Olof Hellman on 7/12/26.
 //

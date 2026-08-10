@@ -1,6 +1,6 @@
 //
 //  FourCharCode.swift
-//  SinterPixelsBridge
+//  SinterAppleEvents
 //
 //  Created by Olof Hellman on 7/12/26.
 //
@@ -15,7 +15,7 @@ public extension FourCharCode {
     static var all: FourCharCode { return FourCharCode(string: "all ")  }
     static var any: FourCharCode { return FourCharCode(string: "any ")  }
     static var first: FourCharCode { return FourCharCode(string: "firs")  }
-    static var last: FourCharCode { return FourCharCode(string: "alast")  }
+    static var last: FourCharCode { return FourCharCode(string: "last")  }
     static var middle: FourCharCode { return FourCharCode(string: "midd")  }
     
     static var pHeight: FourCharCode { return FourCharCode(string: "hght")  }

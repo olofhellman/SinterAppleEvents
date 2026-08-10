@@ -1,6 +1,6 @@
 //
 //  SPInsertionLocation.swift
-//  SinterPixelsBridge
+//  SinterAppleEvents
 //
 //  Created by Olof Hellman on 7/13/26.
 //
