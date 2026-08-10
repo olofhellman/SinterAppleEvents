@@ -1,5 +1,5 @@
 //
-//  NSAppleEventDescriptor+SPB.swift
+//  NSAppleEventDescriptor+SAE.swift
 //  SinterAppleEvents
 //
 //  Created by Olof Hellman on 7/12/26.
