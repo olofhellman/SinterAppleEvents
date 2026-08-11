@@ -29,6 +29,7 @@ open class SAEObject: SAEScriptable {
         guard let reply = try? event.sendEvent(options: [], timeout: 10) else {
             return []
         }
+        
         guard let result = reply.paramDescriptor(forKeyword: .result) else {
             return []
         }
@@ -46,7 +47,7 @@ open class SAEObject: SAEScriptable {
         return []
     }
 
-    public func make(new whatClass: FourCharCode, props: NSAppleEventDescriptor) -> NSAppleEventDescriptor? {
+    public func make(new whatClass: FourCharCode, props: SAERecord?) -> NSAppleEventDescriptor? {
         return app.make(new: whatClass, container: self.objSpec, props: props)
      }
 

@@ -132,13 +132,13 @@ open class SAEApp : SAEObject {
         return Int(countResult.int32Value)
     }
 
-    public func make(new whatClass: FourCharCode, container: NSAppleEventDescriptor, props: NSAppleEventDescriptor? = nil) -> NSAppleEventDescriptor? {
+    public func make(new whatClass: FourCharCode, container: NSAppleEventDescriptor, props: SAERecord? = nil) -> NSAppleEventDescriptor? {
         let event = self.createElementEvent()
         let insertLoc = SAEInsertionLocation(obj: container, pos: kAEEnd)
-        event.setParam(NSAppleEventDescriptor(typeCode: whatClass), forKeyword: .objectClass)
-        event.setParam(insertLoc.asNSAppleEventDescriptor(), forKeyword: .insertHere)
+        event.setParam(.objectClass, typeCode: whatClass)
+        event.setParam(.insertHere, descriptor: insertLoc.asNSAppleEventDescriptor())
         if let props {
-            event.setParam(props, forKeyword: .propData)
+            event.setParam(.propData, descriptor: props.record)
         }
         
         let result = try? event.sendEvent(options: .waitForReply, timeout: 60)
@@ -147,7 +147,7 @@ open class SAEApp : SAEObject {
     
     public func getData(directObject: NSAppleEventDescriptor) -> NSAppleEventDescriptor {
         let event = self.getDataEvent()
-        event.setParam(directObject, forKeyword: .directObject)
+        event.setParam(.directObject, descriptor: directObject)
         
         let result = try? event.sendEvent(options: .waitForReply, timeout: 60)
         return result?.paramDescriptor(forKeyword: .result) ?? NSAppleEventDescriptor.null()
@@ -155,8 +155,8 @@ open class SAEApp : SAEObject {
     
     public func setData(directObject: NSAppleEventDescriptor, newValue: NSAppleEventDescriptor) {
         let event = self.setDataEvent()
-        event.setParam(directObject, forKeyword: .directObject)
-        event.setParam(newValue, forKeyword: .data)
+        event.setParam(.directObject, descriptor: directObject)
+        event.setParam(.data, descriptor: newValue)
         _ = try? event.sendEvent(options: .waitForReply, timeout: 60)
     }
 }
