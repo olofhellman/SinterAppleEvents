@@ -18,6 +18,10 @@ open class SAERecord {
         record.setParam(param, forKeyword: keyword)
     }
     
+    public func setKey(_ keyword: FourCharCode, descriptor: NSAppleEventDescriptor) {
+        record.setParam(descriptor, forKeyword: keyword)
+    }
+    
     public func setKey(_ keyword: FourCharCode, double: Double) {
         let param = NSAppleEventDescriptor(double: double) 
         record.setParam(param, forKeyword: keyword)
