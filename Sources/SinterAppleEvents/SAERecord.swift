@@ -9,7 +9,7 @@ import Foundation
 
 open class SAERecord {
     var record: NSAppleEventDescriptor
-    init() {
+    public init() {
         self.record = NSAppleEventDescriptor.record()
     }
     
