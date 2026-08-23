@@ -18,8 +18,8 @@ public extension FourCharCode {
     static var last: FourCharCode { return FourCharCode(string: "last")  }
     static var middle: FourCharCode { return FourCharCode(string: "midd")  }
     
-    static var pHeight: FourCharCode { return FourCharCode(string: "hght")  }
-    static var pWidth: FourCharCode { return FourCharCode(string: "wdth")  }
+    static var height: FourCharCode { return FourCharCode(string: "hght")  }
+    static var width: FourCharCode { return FourCharCode(string: "wdth")  }
 
     init(string: String) {
         precondition(string.utf16.count == 4)
