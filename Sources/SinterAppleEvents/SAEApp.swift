@@ -138,7 +138,14 @@ open class SAEApp : SAEObject, SAEContainer {
     }
     
     public func make<T: SAEClass>(new type: T.Type, props: SAERecord? = nil) -> T? {
-       guard let nsAppleEventDescriptor = crel(new: type.fcc, container: NSAppleEventDescriptor.null(), props: props) else {
+       guard let nsAppleEventDescriptor = crel(fcc: type.fcc, container: containerForCrelEvent, props: props) else {
+           return nil
+       }
+       return T(app: self, objSpec: nsAppleEventDescriptor)
+    }
+    
+    public func crel<T: SAEClass>(type: T.Type, container: NSAppleEventDescriptor, props: SAERecord? = nil) -> T? {
+       guard let nsAppleEventDescriptor = crel(fcc: type.fcc, container: container, props: props) else {
            return nil
        }
        return T(app: self, objSpec: nsAppleEventDescriptor)
@@ -148,10 +155,10 @@ open class SAEApp : SAEObject, SAEContainer {
     // in most cases, client code that wants to send a crel event should use a 
     // make() command and specify the class of the object to be created, 
     // so that the return value is of the expected type
-    public func crel(new whatClass: FourCharCode, container: NSAppleEventDescriptor, props: SAERecord? = nil) -> NSAppleEventDescriptor? {
+    public func crel(fcc: FourCharCode, container: NSAppleEventDescriptor, props: SAERecord? = nil) -> NSAppleEventDescriptor? {
         let event = self.createElementEvent()
         let insertLoc = SAEInsertionLocation(obj: container, pos: kAEEnd)
-        event.setParam(.objectClass, typeCode: whatClass)
+        event.setParam(.objectClass, typeCode: fcc)
         event.setParam(.insertHere, descriptor: insertLoc.asNSAppleEventDescriptor())
         if let props {
             event.setParam(.propData, descriptor: props.record)
