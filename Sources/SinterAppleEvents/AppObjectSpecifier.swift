@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class AppObjectSpecifier: ObjectSpecifier {
+public class AppObjectSpecifier: SAEObjectSpecifier {
     public let appBundleIdentifier: String
     public init(appIdentifier: String) {
         self.appBundleIdentifier = appIdentifier
@@ -17,6 +17,4 @@ public class AppObjectSpecifier: ObjectSpecifier {
     override public func asNSAppleEventDescriptor() -> NSAppleEventDescriptor {
         return NSAppleEventDescriptor.null()
     }
-
-
 }

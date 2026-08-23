@@ -1,5 +1,5 @@
 //
-//  ObjectSpecifier.swift
+//  SAEObjectSpecifier.swift
 //  SinterAppleEvents
 //
 //  Created by Olof Hellman on 7/12/26.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class ObjectSpecifier {
+public class SAEObjectSpecifier {
 
     let container: NSAppleEventDescriptor
     let classWanted: FourCharCode
@@ -21,7 +21,7 @@ public class ObjectSpecifier {
         self.keydata = keydata
     }
     
-    public func every(_ whatClass: FourCharCode) -> ObjectSpecifier {
+    public func every(_ whatClass: FourCharCode) -> SAEObjectSpecifier {
         return self.asNSAppleEventDescriptor().every(whatClass);
     }
  

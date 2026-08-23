@@ -7,10 +7,7 @@
 
 import Foundation
 
-public extension FourCharCode {
-    static var keyAEObject: FourCharCode { return FourCharCode(string: "kobj")  }
-    static var keyAEPosition: FourCharCode { return FourCharCode(string: "kpos")  }
-}
+
 ///      keyAEObject a typeObjectSpecifier
 ///      keyAEPosition a DescType
  

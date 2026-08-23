@@ -7,11 +7,6 @@
 
 import Foundation
 
-public extension FourCharCode {
-    static var classProperty: FourCharCode { return FourCharCode(string: "prop")  }
-    static var formPropertyID: FourCharCode { return FourCharCode(string: "prop")  }
-}
-
 public extension NSAppleEventDescriptor {
 
     convenience init?(int: Int) {
@@ -34,14 +29,14 @@ public extension NSAppleEventDescriptor {
         self.setParam(descriptor, forKeyword: keyword)
     }
     
-    func every(_ whatClass: FourCharCode) -> ObjectSpecifier {
+    func every(_ whatClass: FourCharCode) -> SAEObjectSpecifier {
         let allEnum = NSAppleEventDescriptor(enumCode: .all)
-        return ObjectSpecifier(whatClass, container: self, keyform: .formAbsolutePosition, keydata: allEnum)
+        return SAEObjectSpecifier(whatClass, container: self, keyform: .formAbsolutePosition, keydata: allEnum)
     }
     
-    func property(_ whatProp: FourCharCode) -> ObjectSpecifier {
+    func property(_ whatProp: FourCharCode) -> SAEObjectSpecifier {
         let propEnum = NSAppleEventDescriptor(enumCode: whatProp)
-        return ObjectSpecifier(.classProperty, container: self, keyform: .formPropertyID, keydata: propEnum)
+        return SAEObjectSpecifier(.classProperty, container: self, keyform: .formPropertyID, keydata: propEnum)
     }
     
     var intValue: Int? {

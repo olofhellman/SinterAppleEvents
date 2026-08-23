@@ -8,10 +8,6 @@
 
 import Foundation
  
-public extension FourCharCode {
-    static var classDocument: FourCharCode { return FourCharCode(string: "docu")  }
-}
-
 open class SAEDocument: SAEObject {
     public static let fcc: FourCharCode = .classDocument
 }

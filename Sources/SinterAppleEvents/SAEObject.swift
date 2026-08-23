@@ -46,10 +46,10 @@ open class SAEObject: SAEScriptable {
         }
         return []
     }
-
-    public func make(new whatClass: FourCharCode, props: SAERecord?) -> NSAppleEventDescriptor? {
-        return app.make(new: whatClass, container: self.objSpec, props: props)
-     }
+    
+    public var containerForCrelEvent: NSAppleEventDescriptor {
+        return self.objSpec
+    }
 
     public func property(_ propCode: FourCharCode) -> SAEObjectProperty? {
         return SAEObjectProperty(spObject: self, propCode: propCode)

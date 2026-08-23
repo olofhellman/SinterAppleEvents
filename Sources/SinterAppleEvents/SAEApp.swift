@@ -10,7 +10,8 @@ import Foundation
 // AppKit is needed for NSRunningApplication
 import AppKit
 
-open class SAEApp : SAEObject {
+open class SAEApp : SAEObject, SAEContainer {
+    
     let appObjectSpecifier: AppObjectSpecifier
     let appTargetDescriptor: NSAppleEventDescriptor
 
@@ -131,8 +132,23 @@ open class SAEApp : SAEObject {
         }
         return Int(countResult.int32Value)
     }
-
-    public func make(new whatClass: FourCharCode, container: NSAppleEventDescriptor, props: SAERecord? = nil) -> NSAppleEventDescriptor? {
+    
+    public override var containerForCrelEvent: NSAppleEventDescriptor {
+        return NSAppleEventDescriptor.null()
+    }
+    
+    public func make<T: SAEClass>(new type: T.Type, props: SAERecord? = nil) -> T? {
+       guard let nsAppleEventDescriptor = crel(new: type.fcc, container: NSAppleEventDescriptor.null(), props: props) else {
+           return nil
+       }
+       return T(app: self, objSpec: nsAppleEventDescriptor)
+    }
+    
+    // crel is the create element apple event
+    // in most cases, client code that wants to send a crel event should use a 
+    // make() command and specify the class of the object to be created, 
+    // so that the return value is of the expected type
+    public func crel(new whatClass: FourCharCode, container: NSAppleEventDescriptor, props: SAERecord? = nil) -> NSAppleEventDescriptor? {
         let event = self.createElementEvent()
         let insertLoc = SAEInsertionLocation(obj: container, pos: kAEEnd)
         event.setParam(.objectClass, typeCode: whatClass)
