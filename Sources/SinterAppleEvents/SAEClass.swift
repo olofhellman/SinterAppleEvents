@@ -7,7 +7,9 @@
 
 import Foundation
 
-public protocol SAEClass: SAEObject {
-    static var fcc: FourCharCode { get }
-    init(app: SAEApp?, objSpec: NSAppleEventDescriptor)
+open class SAEClass: SAEObject {
+
+    required override public init(app: SAEApp?, objSpec: NSAppleEventDescriptor) {
+        super.init(app: app, objSpec: objSpec)
+    }
 }

@@ -137,14 +137,14 @@ open class SAEApp : SAEObject, SAEContainer {
         return NSAppleEventDescriptor.null()
     }
     
-    public func make<T: SAEClass>(new type: T.Type, props: SAERecord? = nil) -> T? {
+    public func make<T: SAEMakeable>(new type: T.Type, props: SAERecord? = nil) -> T? {
        guard let nsAppleEventDescriptor = crel(fcc: type.fcc, container: containerForCrelEvent, props: props) else {
            return nil
        }
        return T(app: self, objSpec: nsAppleEventDescriptor)
     }
     
-    public func crel<T: SAEClass>(type: T.Type, container: NSAppleEventDescriptor, props: SAERecord? = nil) -> T? {
+    public func crel<T: SAEMakeable>(type: T.Type, container: NSAppleEventDescriptor, props: SAERecord? = nil) -> T? {
        guard let nsAppleEventDescriptor = crel(fcc: type.fcc, container: container, props: props) else {
            return nil
        }

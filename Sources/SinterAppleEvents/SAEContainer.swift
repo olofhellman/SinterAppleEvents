@@ -8,5 +8,5 @@
 import Foundation
 
 public protocol SAEContainer {
-    func make<T: SAEClass>(new type: T.Type, props: SAERecord?) -> T?
+    func make<T: SAEMakeable>(new type: T.Type, props: SAERecord?) -> T?
 }

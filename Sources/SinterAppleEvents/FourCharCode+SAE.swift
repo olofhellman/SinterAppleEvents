@@ -11,6 +11,7 @@ public extension FourCharCode {
     static var classApplication: FourCharCode { return FourCharCode(string: "capp")  }
     static var classDocument: FourCharCode { return FourCharCode(string: "docu")  }
     static var classProperty: FourCharCode { return FourCharCode(string: "prop")  }
+    static var classScriptableObject: FourCharCode { return FourCharCode(string: "cobj")  }
  
     static var formAbsolutePosition: FourCharCode { return FourCharCode(string: "indx")  }
     static var formUniqueID: FourCharCode { return FourCharCode(string: "ID  ")  }
