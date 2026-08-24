@@ -13,8 +13,8 @@ public extension AEKeyword {
     static var data: AEKeyword { return AEKeyword(string: "data") }
     static var desiredClass: AEKeyword { return AEKeyword(string: "want") }
     static var insertHere: AEKeyword { return AEKeyword(string: "insh") }
-    static var keyform: AEKeyword { return AEKeyword(string: "kfrm") }
-    static var keydata: AEKeyword { return AEKeyword(string: "kdat") }
+    static var keyform: AEKeyword { return AEKeyword(string: "form") }
+    static var keydata: AEKeyword { return AEKeyword(string: "seld") }
     static var objectClass: AEKeyword { return AEKeyword(string: "kocl") }
     static var propData: AEKeyword { return AEKeyword(string: "prdt") }
     static var result: AEKeyword { return AEKeyword(string: "----") }

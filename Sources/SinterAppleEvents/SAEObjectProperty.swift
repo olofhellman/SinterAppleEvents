@@ -15,7 +15,7 @@ public class SAEObjectProperty: SAEScriptable {
         self.spObject = spObject
         self.propCode = propCode
         let propSpec = spObject.objSpec.property(propCode)
-        super.init(app: spObject.app, objSpec: propSpec.asNSAppleEventDescriptor())
+        super.init(appContext: spObject.appContext, objSpec: propSpec.asTypeObjectSpecifierDescriptor())
     }
 }
     

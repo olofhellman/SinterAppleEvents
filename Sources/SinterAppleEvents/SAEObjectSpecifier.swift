@@ -22,16 +22,16 @@ public class SAEObjectSpecifier {
     }
     
     public func every(_ whatClass: FourCharCode) -> SAEObjectSpecifier {
-        return self.asNSAppleEventDescriptor().every(whatClass);
+        return self.asTypeObjectSpecifierDescriptor().every(whatClass);
     }
  
-    public func asNSAppleEventDescriptor() -> NSAppleEventDescriptor {
+    public func asTypeObjectSpecifierDescriptor() -> NSAppleEventDescriptor {
         let recordDescriptor = NSAppleEventDescriptor.record()
  
         recordDescriptor.setParam(container, forKeyword: .container)
         recordDescriptor.setParam(NSAppleEventDescriptor(enumCode: keyform), forKeyword: .keyform)
         recordDescriptor.setParam(NSAppleEventDescriptor(typeCode: classWanted), forKeyword: .desiredClass)
-        recordDescriptor.setParam(keydata, forKeyword: .data)
+        recordDescriptor.setParam(keydata, forKeyword: .keydata)
         let objSpec = recordDescriptor.coerce(toDescriptorType: typeObjectSpecifier)
         return  objSpec ?? NSAppleEventDescriptor.null()
     }

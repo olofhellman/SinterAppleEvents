@@ -19,6 +19,29 @@ public extension NSAppleEventDescriptor {
             self.init(descriptorType: typeSInt64, data: localData)
         }
     }
+
+    static func listOf(ints: [Int]) -> NSAppleEventDescriptor {
+        let aeList = NSAppleEventDescriptor.list()
+        var count = 0
+        for i in ints {
+            if let desc = NSAppleEventDescriptor(int: i) {
+                aeList.insert(desc, at: count + 1)
+                count += 1
+            }
+        }
+        return aeList
+    }
+
+    static func listOf(strings: [String]) -> NSAppleEventDescriptor {
+        let aeList = NSAppleEventDescriptor.list()
+        var count = 0
+        for s in strings {
+            let desc = NSAppleEventDescriptor(string: s)  
+            aeList.insert(desc, at: count + 1)
+            count += 1
+        }
+        return aeList
+    }
     
     func setParam(_ keyword: FourCharCode, typeCode: FourCharCode) {
         let typeCodeDescriptor = NSAppleEventDescriptor(typeCode: typeCode)

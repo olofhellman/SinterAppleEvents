@@ -14,7 +14,7 @@ public class AppObjectSpecifier: SAEObjectSpecifier {
         super.init(FourCharCode.classApplication, container: nil, keyform: FourCharCode.formUniqueID, keydata: NSAppleEventDescriptor.null())
     }
     
-    override public func asNSAppleEventDescriptor() -> NSAppleEventDescriptor {
+    override public func asTypeObjectSpecifierDescriptor() -> NSAppleEventDescriptor {
         return NSAppleEventDescriptor.null()
     }
 }

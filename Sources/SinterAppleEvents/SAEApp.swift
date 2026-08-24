@@ -10,21 +10,30 @@ import Foundation
 // AppKit is needed for NSRunningApplication
 import AppKit
 
-open class SAEApp : SAEObject, SAEContainer {
+open class SAEApp : SAEObject, SAEContainer, SAEAppContext {
     
     let appObjectSpecifier: AppObjectSpecifier
-    let appTargetDescriptor: NSAppleEventDescriptor
+    public let appTargetDescriptor: NSAppleEventDescriptor
 
     public init?(identifier: String) {
         self.appTargetDescriptor = NSAppleEventDescriptor(bundleIdentifier: identifier)
         let appOS = AppObjectSpecifier(appIdentifier: identifier)
         self.appObjectSpecifier = appOS
-        super.init(app: nil, objSpec: appOS.asNSAppleEventDescriptor())
+        super.init(appContext: nil, objSpec: appOS.asTypeObjectSpecifierDescriptor())
+    }
+
+    // targets a running process directly by pid, useful for apps which are not
+    // registered with Launch Services under a bundle identifier (e.g. test helper tools)
+    public init(processIdentifier pid: pid_t) {
+        self.appTargetDescriptor = NSAppleEventDescriptor(processIdentifier: pid)
+        let appOS = AppObjectSpecifier(appIdentifier: "")
+        self.appObjectSpecifier = appOS
+        super.init(appContext: nil, objSpec: appOS.asTypeObjectSpecifierDescriptor())
     }
     
     // SAEObject instances which are not SAEApp have a non-nil appContext
     // and just return that for the app.  SAEApp objects are their own context
-    override public var app: SAEApp {
+    override public var appContext: SAEAppContext {
         return self
     }
     
@@ -45,35 +54,12 @@ open class SAEApp : SAEObject, SAEContainer {
         let _ = try? activateEvent.sendEvent(options: [], timeout: 10)
         return true
     }
-
-    public func appleEvent(eventClass: AEEventClass, eventID: AEEventID) -> NSAppleEventDescriptor {
-        let event = NSAppleEventDescriptor(
-            eventClass: eventClass,
-            eventID: eventID,
-            targetDescriptor: appTargetDescriptor,
-            returnID: AEReturnID(kAutoGenerateReturnID),
-            transactionID: AETransactionID(kAnyTransactionID)
-        )
-        return event
-    }    
-
-    public func requiredEvent(eventID: AEEventID) -> NSAppleEventDescriptor {
-        return self.appleEvent(eventClass: AEEventClass.aevt, eventID: eventID)
-    }    
-
-    public func coreEvent(eventID: AEEventID) -> NSAppleEventDescriptor {
-        return self.appleEvent(eventClass: AEEventClass.core, eventID: eventID)
-    }    
-
-    public func miscEvent(eventID: AEEventID) -> NSAppleEventDescriptor {
-        return self.appleEvent(eventClass: AEEventClass.misc, eventID: eventID)
-    }    
-    
+   
     override public func elements(ofClass classFcc: FourCharCode) -> [NSAppleEventDescriptor] {
         let event = getDataEvent()
         
         let directObjectSpecifier = appObjectSpecifier.every(classFcc)
-        event.setParam(directObjectSpecifier.asNSAppleEventDescriptor(), forKeyword: .directObject)
+        event.setParam(directObjectSpecifier.asTypeObjectSpecifierDescriptor(), forKeyword: .directObject)
         
         guard let reply = try? event.sendEvent(options: [], timeout: 10) else {
             return []
@@ -85,6 +71,7 @@ open class SAEApp : SAEObject, SAEContainer {
         if result.descriptorType == typeAEList {
             var listOfAEDesc: [NSAppleEventDescriptor] = []
             let ct = result.numberOfItems
+            guard ct > 0 else { return listOfAEDesc }
             for i in 1...ct {
                 if let nthItem = result.atIndex(i) {
                     listOfAEDesc.append(nthItem)
@@ -95,29 +82,17 @@ open class SAEApp : SAEObject, SAEContainer {
         return []
     }
 
-    public func createElementEvent() -> NSAppleEventDescriptor {
-       return self.coreEvent(eventID: AEEventID.createElement)
-    }
-    public func countEvent() -> NSAppleEventDescriptor {
-       return self.coreEvent(eventID: AEEventID.count)
-    }
-    public func getDataEvent() -> NSAppleEventDescriptor {
-       return self.coreEvent(eventID: AEEventID.getData)
-    }
-    public func setDataEvent() -> NSAppleEventDescriptor {
-       return self.coreEvent(eventID: AEEventID.setData)
-    }
-        
+       
     public func documents() -> [SAEDocument] {
         let docs = elements(ofClass: SAEDocument.fcc)
-        return docs.map { SAEDocument(app: self, objSpec: $0) }
+        return docs.map { SAEDocument(appContext: self, objSpec: $0) }
     }
         
     public func document(atASIndex asIndex: Int) -> SAEDocument? {
         guard let doc = element(ofClass: FourCharCode.classDocument, atASIndex: asIndex) else {
             return nil
         }
-        return SAEDocument(app: self, objSpec: doc)
+        return SAEDocument(appContext: self, objSpec: doc)
     }
 
     public func count(_ whatClass: FourCharCode, container: NSAppleEventDescriptor) ->Int? {
@@ -141,14 +116,14 @@ open class SAEApp : SAEObject, SAEContainer {
        guard let nsAppleEventDescriptor = crel(fcc: type.fcc, container: containerForCrelEvent, props: props) else {
            return nil
        }
-       return T(app: self, objSpec: nsAppleEventDescriptor)
+       return T(appContext: self, objSpec: nsAppleEventDescriptor)
     }
     
     public func crel<T: SAEMakeable>(type: T.Type, container: NSAppleEventDescriptor, props: SAERecord? = nil) -> T? {
        guard let nsAppleEventDescriptor = crel(fcc: type.fcc, container: container, props: props) else {
            return nil
        }
-       return T(app: self, objSpec: nsAppleEventDescriptor)
+       return T(appContext: self, objSpec: nsAppleEventDescriptor)
     }
     
     // crel is the create element apple event
@@ -168,7 +143,18 @@ open class SAEApp : SAEObject, SAEContainer {
         return result?.paramDescriptor(forKeyword: .result)
     }
     
-    public func getData(directObject: NSAppleEventDescriptor) -> NSAppleEventDescriptor {
+    public func objectSpecifier(for containedObject: SAEContainedObjectSpecifier) -> NSAppleEventDescriptor {
+        return containedObject.asTypeObjectSpecifierDescriptor(container: appObjectSpecifier.asTypeObjectSpecifierDescriptor())
+    }
+    
+    public func sendDelete(directObject: NSAppleEventDescriptor) {
+        let event = appContext.deleteEvent()
+        event.setParam(.directObject, descriptor: directObject)
+        
+        _ = try? event.sendEvent(options: .waitForReply, timeout: 60)
+    }
+    
+    public func sendGetData(directObject: NSAppleEventDescriptor) -> NSAppleEventDescriptor {
         let event = self.getDataEvent()
         event.setParam(.directObject, descriptor: directObject)
         
@@ -176,10 +162,12 @@ open class SAEApp : SAEObject, SAEContainer {
         return result?.paramDescriptor(forKeyword: .result) ?? NSAppleEventDescriptor.null()
     }
     
-    public func setData(directObject: NSAppleEventDescriptor, newValue: NSAppleEventDescriptor) {
+    public func sendSetData(directObject: NSAppleEventDescriptor, newValue: NSAppleEventDescriptor) {
         let event = self.setDataEvent()
         event.setParam(.directObject, descriptor: directObject)
         event.setParam(.data, descriptor: newValue)
         _ = try? event.sendEvent(options: .waitForReply, timeout: 60)
     }
+    
+// 
 }

@@ -10,27 +10,28 @@ import Foundation
 
 open class SAEScriptable {
 
-    var appContext: SAEApp?
-    public var app: SAEApp {
-        guard let appContext else {
+    private var saeAppContext: SAEAppContext?
+    
+    public var appContext: SAEAppContext {
+        guard let saeAppContext else {
             fatalError("No app context")
         }
-        return appContext
+        return saeAppContext
     }
     
     public let objSpec: NSAppleEventDescriptor
     
-    public init(app: SAEApp?, objSpec: NSAppleEventDescriptor) {
-        self.appContext = app
+    public init(appContext: SAEAppContext?, objSpec: NSAppleEventDescriptor) {
+        self.saeAppContext = appContext
         self.objSpec = objSpec
     }
     
     public func getData() -> NSAppleEventDescriptor {
-        return app.getData(directObject: self.objSpec)  
+        return appContext.sendGetData(directObject: self.objSpec)  
     }
     
     public func setData(newValue: NSAppleEventDescriptor) {
-        return app.setData(directObject: self.objSpec, newValue: newValue)  
+        return appContext.sendSetData(directObject: self.objSpec, newValue: newValue)  
     }
 
 }

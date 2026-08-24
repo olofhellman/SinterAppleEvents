@@ -8,5 +8,28 @@
 import Foundation
 
 public protocol SAEContainer {
+    var appContext: any SAEAppContext { get }
+    func objectSpecifier(for containedObject: SAEContainedObjectSpecifier) -> NSAppleEventDescriptor 
     func make<T: SAEMakeable>(new type: T.Type, props: SAERecord?) -> T?
+    func delete<T: SAEMakeable>(_ type: T.Type, _ formAndData: SAEKeyFormAndData) 
+    func delete<T: SAEMakeable>(_ specificPosition: SAESpecificPosition, _ type: T.Type)
+    func delete(containedObject: SAEContainedObjectSpecifier)
+}
+
+extension SAEContainer {
+        
+    public func delete<T: SAEMakeable>(_ type: T.Type, _ formAndData: SAEKeyFormAndData) {
+        let cos = SAEContainedObjectSpecifier(fcc: type.fcc, formAndData: formAndData)
+        self.delete(containedObject:cos)
+    }
+    
+    public func delete<T: SAEMakeable>(_ specificPosition: SAESpecificPosition, _ type: T.Type) {
+        let cos = SAEContainedObjectSpecifier(fcc: type.fcc, specificPosition: specificPosition)
+        self.delete(containedObject:cos)
+    }
+    
+    public func delete(containedObject: SAEContainedObjectSpecifier) {
+        let directObject = self.objectSpecifier(for: containedObject)
+        appContext.sendDelete(directObject: directObject)
+    }
 }

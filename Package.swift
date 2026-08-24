@@ -16,6 +16,14 @@ let package = Package(
     targets: [
         .target(
             name: "SinterAppleEvents"
+        ),
+        .executableTarget(
+            name: "SAEScriptableTestApp",
+            path: "ScriptableTestApp/Sources"
+        ),
+        .testTarget(
+            name: "SinterAppleEventsTests",
+            dependencies: ["SinterAppleEvents"]
         )
     ]
 )

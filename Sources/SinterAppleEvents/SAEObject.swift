@@ -21,10 +21,10 @@ open class SAEObject: SAEScriptable {
     }
     
     public func elements(ofClass classFcc: FourCharCode) -> [NSAppleEventDescriptor] {
-        let event = app.coreEvent(eventID: FourCharCode.getData)
+        let event = appContext.coreEvent(eventID: FourCharCode.getData)
         
         let directObjectSpecifier = objSpec.every(classFcc)
-        event.setParam(directObjectSpecifier.asNSAppleEventDescriptor(), forKeyword: .directObject)
+        event.setParam(directObjectSpecifier.asTypeObjectSpecifierDescriptor(), forKeyword: .directObject)
         
         guard let reply = try? event.sendEvent(options: [], timeout: 10) else {
             return []
@@ -37,6 +37,7 @@ open class SAEObject: SAEScriptable {
         if result.descriptorType == typeAEList {
             var listOfAEDesc: [NSAppleEventDescriptor] = []
             let ct = result.numberOfItems
+            guard ct > 0 else { return listOfAEDesc }
             for i in 1...ct {
                 if let nthItem = result.atIndex(i) {
                     listOfAEDesc.append(nthItem)

@@ -14,6 +14,7 @@ public extension FourCharCode {
     static var classScriptableObject: FourCharCode { return FourCharCode(string: "cobj")  }
  
     static var formAbsolutePosition: FourCharCode { return FourCharCode(string: "indx")  }
+    static var formName: FourCharCode { return FourCharCode(string: "name")  }
     static var formUniqueID: FourCharCode { return FourCharCode(string: "ID  ")  }
     static var formPropertyID: FourCharCode { return FourCharCode(string: "prop")  }
  
@@ -22,13 +23,16 @@ public extension FourCharCode {
     static var keyAEPosition: FourCharCode { return FourCharCode(string: "kpos")  }
  
     static var all: FourCharCode { return FourCharCode(string: "all ")  }
-    static var any: FourCharCode { return FourCharCode(string: "any ")  }
+    static var some: FourCharCode { return FourCharCode(string: "any ")  }
     static var first: FourCharCode { return FourCharCode(string: "firs")  }
     static var last: FourCharCode { return FourCharCode(string: "last")  }
     static var middle: FourCharCode { return FourCharCode(string: "midd")  }
     
     static var height: FourCharCode { return FourCharCode(string: "hght")  }
     static var width: FourCharCode { return FourCharCode(string: "wdth")  }
+
+    // the standard AEOM "name" property code, present on most scriptable objects
+    static var pName: FourCharCode { return FourCharCode(string: "pnam")  }
 
     init(string: String) {
         precondition(string.utf16.count == 4)

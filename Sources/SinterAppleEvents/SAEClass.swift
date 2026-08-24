@@ -9,7 +9,7 @@ import Foundation
 
 open class SAEClass: SAEObject {
 
-    required override public init(app: SAEApp?, objSpec: NSAppleEventDescriptor) {
-        super.init(app: app, objSpec: objSpec)
+    required override public init(appContext: SAEAppContext?, objSpec: NSAppleEventDescriptor) {
+        super.init(appContext: appContext, objSpec: objSpec)
     }
 }
