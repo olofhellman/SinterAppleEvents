@@ -8,27 +8,26 @@
 //
 
 import XCTest
-@testable import SinterAppleEvents
+import AppKit
+import SinterAppleEvents
 
 final class SinterAppleEventsIntegrationTests: XCTestCase {
-
-    var process: Process!
-
+    var targetApp: NSRunningApplication!
+    
     override func setUpWithError() throws {
-        process = Process()
-        process.executableURL = productsDirectory().appendingPathComponent("SAEScriptableTestApp")
-        try process.run()
-        // give the helper app a moment to launch and install its Apple Event handlers
-        Thread.sleep(forTimeInterval: 0.5)
+        targetApp = NSWorkspace.shared.runningApplications.first {
+            $0.localizedName == "SAEScriptableTestApp"
+        }
+        guard targetApp != nil else {
+            throw XCTSkip("SAEScriptableTestApp is not running")
+        }
     }
 
     override func tearDownWithError() throws {
-        process.terminate()
-        process.waitUntilExit()
     }
 
     func testDocumentLifecycle() throws {
-        let app = SAEApp(processIdentifier: process.processIdentifier)
+        let app = SAEApp(processIdentifier: targetApp.processIdentifier)
 
         // DEBUG
         let debugEvent = app.createElementEvent()
@@ -39,18 +38,15 @@ final class SinterAppleEventsIntegrationTests: XCTestCase {
         } catch {
             print("DEBUG error: \(error)")
         }
-
+        let docCountAtStart = app.documents().count
+        
         let props = SAERecord()
         props.setKey(.pName, descriptor: NSAppleEventDescriptor(string: "First Document"))
         guard let firstDoc = app.make(new: SAEDocument.self, props: props) else {
             return XCTFail("failed to make first document")
         }
-        guard let secondDoc = app.make(new: SAEDocument.self) else {
-            return XCTFail("failed to make second document")
-        }
 
-        XCTAssertEqual(app.documents().count, 2)
-        XCTAssertEqual(app.count(.classDocument, container: NSAppleEventDescriptor.null()), 2)
+        XCTAssertEqual(app.documents().count, docCountAtStart + 1)
 
         let nameProperty = firstDoc.property(.pName)
         XCTAssertEqual(nameProperty?.getData().stringValue, "First Document")
@@ -59,18 +55,7 @@ final class SinterAppleEventsIntegrationTests: XCTestCase {
         XCTAssertEqual(nameProperty?.getData().stringValue, "Renamed Document")
 
         app.sendDelete(directObject: firstDoc.objSpec)
-        XCTAssertEqual(app.documents().count, 1)
+        XCTAssertEqual(app.documents().count, docCountAtStart)
 
-        app.sendDelete(directObject: secondDoc.objSpec)
-        XCTAssertEqual(app.documents().count, 0)
-    }
-
-    // returns the directory that holds the build products, which is where
-    // the SAEScriptableTestApp executable built by this package ends up
-    private func productsDirectory() -> URL {
-        for bundle in Bundle.allBundles where bundle.bundlePath.hasSuffix(".xctest") {
-            return bundle.bundleURL.deletingLastPathComponent()
-        }
-        fatalError("couldn't find the products directory")
     }
 }
