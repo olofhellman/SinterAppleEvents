@@ -95,79 +95,29 @@ open class SAEApp : SAEObject, SAEContainer, SAEAppContext {
         return SAEDocument(appContext: self, objSpec: doc)
     }
 
-    public func count(_ whatClass: FourCharCode, container: NSAppleEventDescriptor) ->Int? {
-        let event = self.countEvent()
-        event.setParam(container, forKeyword: .directObject)
-        let whatClassParam = NSAppleEventDescriptor(typeCode: whatClass)
-        event.setParam(whatClassParam, forKeyword: .objectClass)
-  
-        let result = try? event.sendEvent(options: .waitForReply, timeout: 60)
-        guard let countResult = result?.paramDescriptor(forKeyword: .result) else {
-            return nil
-        }
-        return Int(countResult.int32Value)
-    }
     
     public override var containerForCrelEvent: NSAppleEventDescriptor {
         return NSAppleEventDescriptor.null()
     }
     
     public func make<T: SAEMakeable>(new type: T.Type, props: SAERecord? = nil) -> T? {
-       guard let nsAppleEventDescriptor = crel(fcc: type.fcc, container: containerForCrelEvent, props: props) else {
+       guard let nsAppleEventDescriptor = sendCreateElement(fcc: type.fcc, container: containerForCrelEvent, props: props) else {
            return nil
        }
        return T(appContext: self, objSpec: nsAppleEventDescriptor)
     }
     
     public func crel<T: SAEMakeable>(type: T.Type, container: NSAppleEventDescriptor, props: SAERecord? = nil) -> T? {
-       guard let nsAppleEventDescriptor = crel(fcc: type.fcc, container: container, props: props) else {
+       guard let nsAppleEventDescriptor = sendCreateElement(fcc: type.fcc, container: container, props: props) else {
            return nil
        }
        return T(appContext: self, objSpec: nsAppleEventDescriptor)
     }
     
-    // crel is the create element apple event
-    // in most cases, client code that wants to send a crel event should use a 
-    // make() command and specify the class of the object to be created, 
-    // so that the return value is of the expected type
-    public func crel(fcc: FourCharCode, container: NSAppleEventDescriptor, props: SAERecord? = nil) -> NSAppleEventDescriptor? {
-        let event = self.createElementEvent()
-        let insertLoc = SAEInsertionLocation(obj: container, pos: kAEEnd)
-        event.setParam(.objectClass, typeCode: fcc)
-        event.setParam(.insertHere, descriptor: insertLoc.asNSAppleEventDescriptor())
-        if let props {
-            event.setParam(.propData, descriptor: props.record)
-        }
-        
-        let result = try? event.sendEvent(options: .waitForReply, timeout: 60)
-        return result?.paramDescriptor(forKeyword: .result)
-    }
-    
-    public func objectSpecifier(for containedObject: SAEContainedObjectSpecifier) -> NSAppleEventDescriptor {
+    override public func objectSpecifier(for containedObject: SAEContainedObjectSpecifier) -> NSAppleEventDescriptor {
         return containedObject.asTypeObjectSpecifierDescriptor(container: appObjectSpecifier.asTypeObjectSpecifierDescriptor())
     }
-    
-    public func sendDelete(directObject: NSAppleEventDescriptor) {
-        let event = appContext.deleteEvent()
-        event.setParam(.directObject, descriptor: directObject)
-        
-        _ = try? event.sendEvent(options: .waitForReply, timeout: 60)
-    }
-    
-    public func sendGetData(directObject: NSAppleEventDescriptor) -> NSAppleEventDescriptor {
-        let event = self.getDataEvent()
-        event.setParam(.directObject, descriptor: directObject)
-        
-        let result = try? event.sendEvent(options: .waitForReply, timeout: 60)
-        return result?.paramDescriptor(forKeyword: .result) ?? NSAppleEventDescriptor.null()
-    }
-    
-    public func sendSetData(directObject: NSAppleEventDescriptor, newValue: NSAppleEventDescriptor) {
-        let event = self.setDataEvent()
-        event.setParam(.directObject, descriptor: directObject)
-        event.setParam(.data, descriptor: newValue)
-        _ = try? event.sendEvent(options: .waitForReply, timeout: 60)
-    }
+ 
     
 // 
 }

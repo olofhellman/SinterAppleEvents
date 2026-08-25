@@ -9,7 +9,11 @@
 import Foundation
  
 open class SAEObject: SAEScriptable {
-    
+        
+    public func objectSpecifier(for containedObject: SAEContainedObjectSpecifier) -> NSAppleEventDescriptor {
+        return containedObject.asTypeObjectSpecifierDescriptor(container: self.objSpec)
+    }
+
     public func element(ofClass classFcc: FourCharCode, atASIndex idx: Int) -> NSAppleEventDescriptor? {
         let elements = self.elements(ofClass: classFcc)
         let eCount = elements.count
