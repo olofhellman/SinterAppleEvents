@@ -65,7 +65,7 @@ open class SAEApp : SAEObject, SAEContainer, SAEAppContext {
         let directObjectSpecifier = appObjectSpecifier.every(classFcc)
         event.setParam(directObjectSpecifier.asTypeObjectSpecifierDescriptor(), forKeyword: .directObject)
         
-        guard let reply = try? event.sendEvent(options: [], timeout: 10) else {
+        guard let reply = try? event.sendEvent(options: NSAppleEventDescriptor.SendOptions.defaultOptions, timeout: 10) else {
             return []
         }
         guard let result = reply.paramDescriptor(forKeyword: .result) else {
@@ -86,10 +86,14 @@ open class SAEApp : SAEObject, SAEContainer, SAEAppContext {
         return []
     }
 
-       
+    // app class should override this to return the appropriate SAEDocument subclass for each document
+    open func documentInit(objectSpecifier: NSAppleEventDescriptor) -> SAEDocument {
+        return SAEDocument(appContext: self, objSpec: objectSpecifier)
+    }
+
     public func documents() async -> [SAEDocument] {
         let docs = await elements(ofClass: SAEDocument.fcc)
-        return docs.map { SAEDocument(appContext: self, objSpec: $0) }
+        return docs.map { documentInit (objectSpecifier: $0) }
     }
         
     public func document(atASIndex asIndex: Int) async -> SAEDocument? {

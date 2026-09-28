@@ -53,8 +53,12 @@ public extension NSAppleEventDescriptor {
     }
     
     func every(_ whatClass: FourCharCode) -> SAEObjectSpecifier {
+        
         let allEnum = NSAppleEventDescriptor(enumCode: .all)
-        return SAEObjectSpecifier(whatClass, container: self, keyform: .formAbsolutePosition, keydata: allEnum)
+        guard let allAbsoluteOrdinal = NSAppleEventDescriptor(descriptorType: typeAbsoluteOrdinal, data: allEnum.data) else {
+            fatalError("Failed to create NSAppleEventDescriptor for absolute ordinal")
+        }
+        return SAEObjectSpecifier(whatClass, container: self, keyform: .formAbsolutePosition, keydata: allAbsoluteOrdinal)
     }
     
     func property(_ whatProp: FourCharCode) -> SAEObjectSpecifier {

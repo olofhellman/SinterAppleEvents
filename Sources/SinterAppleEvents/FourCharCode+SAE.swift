@@ -30,6 +30,7 @@ public extension FourCharCode {
     
     static var height: FourCharCode { return FourCharCode(string: "hght")  }
     static var width: FourCharCode { return FourCharCode(string: "wdth")  }
+    static var name: FourCharCode { return FourCharCode(string: "pnam")  }
 
     // the standard AEOM "name" property code, present on most scriptable objects
     static var pName: FourCharCode { return FourCharCode(string: "pnam")  }
