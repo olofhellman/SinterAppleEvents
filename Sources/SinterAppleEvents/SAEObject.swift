@@ -14,8 +14,8 @@ open class SAEObject: SAEScriptable {
         return containedObject.asTypeObjectSpecifierDescriptor(container: self.objSpec)
     }
 
-    public func element(ofClass classFcc: FourCharCode, atASIndex idx: Int) -> NSAppleEventDescriptor? {
-        let elements = self.elements(ofClass: classFcc)
+    public func element(ofClass classFcc: FourCharCode, atASIndex idx: Int) async -> NSAppleEventDescriptor? {
+        let elements = await self.elements(ofClass: classFcc)
         let eCount = elements.count
         let index = ( idx < 0) ? eCount + 1 + idx : idx
         guard (index > 0) && (index <= eCount) else {
@@ -24,7 +24,7 @@ open class SAEObject: SAEScriptable {
         return elements[index - 1]
     }
     
-    public func elements(ofClass classFcc: FourCharCode) -> [NSAppleEventDescriptor] {
+    public func elements(ofClass classFcc: FourCharCode) async -> [NSAppleEventDescriptor] {
         let event = appContext.coreEvent(eventID: FourCharCode.getData)
         
         let directObjectSpecifier = objSpec.every(classFcc)

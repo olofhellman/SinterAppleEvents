@@ -26,12 +26,12 @@ open class SAEScriptable {
         self.objSpec = objSpec
     }
     
-    public func getData() -> NSAppleEventDescriptor {
-        return appContext.sendGetData(directObject: self.objSpec)  
+    public func getData() async -> NSAppleEventDescriptor {
+        return await appContext.sendGetData(directObject: self.objSpec)
     }
     
-    public func setData(newValue: NSAppleEventDescriptor) {
-        return appContext.sendSetData(directObject: self.objSpec, newValue: newValue)  
+    public func setData(newValue: NSAppleEventDescriptor) async {
+        return await appContext.sendSetData(directObject: self.objSpec, newValue: newValue)
     }
 
 }

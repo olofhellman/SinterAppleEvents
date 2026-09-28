@@ -12,9 +12,14 @@ import Foundation
 
 public protocol SAEAppContext {
     var appTargetDescriptor: NSAppleEventDescriptor { get }
-    func sendDelete(directObject: NSAppleEventDescriptor)   
-    func sendGetData(directObject: NSAppleEventDescriptor) -> NSAppleEventDescriptor
-    func sendSetData(directObject: NSAppleEventDescriptor, newValue: NSAppleEventDescriptor) 
+    
+    func send(appleEvent: NSAppleEventDescriptor, options: NSAppleEventDescriptor.SendOptions?, timeout: TimeInterval?) async -> NSAppleEventDescriptor
+    
+    func sendCount(_ whatClass: FourCharCode, container: NSAppleEventDescriptor) async -> Int?
+    func sendCreateElement(fcc: FourCharCode, container: NSAppleEventDescriptor, props: SAERecord?) async -> NSAppleEventDescriptor?
+    func sendDelete(directObject: NSAppleEventDescriptor) async
+    func sendGetData(directObject: NSAppleEventDescriptor) async -> NSAppleEventDescriptor
+    func sendSetData(directObject: NSAppleEventDescriptor, newValue: NSAppleEventDescriptor) async
 }
 
 extension SAEAppContext {
@@ -61,13 +66,13 @@ extension SAEAppContext {
        return self.coreEvent(eventID: AEEventID.setData)
     }
 
-    public func sendCount(_ whatClass: FourCharCode, container: NSAppleEventDescriptor) -> Int? {
+    public func sendCount(_ whatClass: FourCharCode, container: NSAppleEventDescriptor) async -> Int? {
         let event = self.countEvent()
         event.setParam(container, forKeyword: .directObject)
         let whatClassParam = NSAppleEventDescriptor(typeCode: whatClass)
         event.setParam(whatClassParam, forKeyword: .objectClass)
   
-        let result = self.send(appleEvent: event) 
+        let result = await self.send(appleEvent: event, options: nil, timeout: nil)
         return result.descriptorType == typeNull ? nil :  Int(result.int32Value)
     }
      
@@ -75,7 +80,8 @@ extension SAEAppContext {
     // in most cases, client code that wants to send a crel event should use a 
     // make() command and specify the class of the object to be created, 
     // so that the return value is of the expected type
-    public func sendCreateElement(fcc: FourCharCode, container: NSAppleEventDescriptor, props: SAERecord? = nil) -> NSAppleEventDescriptor? {
+
+    public func sendCreateElement(fcc: FourCharCode, container: NSAppleEventDescriptor, props: SAERecord? = nil) async -> NSAppleEventDescriptor? {
         let event = self.createElementEvent()
         let insertLoc = SAEInsertionLocation(obj: container, pos: kAEEnd)
         event.setParam(.objectClass, typeCode: fcc)
@@ -84,33 +90,29 @@ extension SAEAppContext {
             event.setParam(.propData, descriptor: props.record)
         }
         
-        return self.send(appleEvent: event)
+        return await self.send(appleEvent: event, options: nil, timeout: nil)
     }
       
-    public func sendDelete(directObject: NSAppleEventDescriptor) {
+    public func sendDelete(directObject: NSAppleEventDescriptor) async {
         let event = self.deleteEvent()
         event.setParam(.directObject, descriptor: directObject)
         
-        _ = self.send(appleEvent: event)
+        _ = await self.send(appleEvent: event, options: nil, timeout: nil)
     }
     
-    public func sendGetData(directObject: NSAppleEventDescriptor) -> NSAppleEventDescriptor {
+    public func sendGetData(directObject: NSAppleEventDescriptor) async -> NSAppleEventDescriptor {
         let event = self.getDataEvent()
         event.setParam(.directObject, descriptor: directObject)
         
-        return self.send(appleEvent: event)
+        return await self.send(appleEvent: event, options: nil, timeout: nil)
     }
     
-    public func sendSetData(directObject: NSAppleEventDescriptor, newValue: NSAppleEventDescriptor) {
+    public func sendSetData(directObject: NSAppleEventDescriptor, newValue: NSAppleEventDescriptor) async {
         let event = self.setDataEvent()
         event.setParam(.directObject, descriptor: directObject)
         event.setParam(.data, descriptor: newValue)
-        _ = self.send(appleEvent: event)
+        _ = await self.send(appleEvent: event, options: nil, timeout: nil)
     }
     
-    public func send(appleEvent: NSAppleEventDescriptor, options: NSAppleEventDescriptor.SendOptions = .waitForReply, timeout: Int = 60) -> NSAppleEventDescriptor {
-        let result =  try? appleEvent.sendEvent(options: .waitForReply, timeout: 60)
-        return result?.paramDescriptor(forKeyword: .result) ?? NSAppleEventDescriptor.null()
-    }
 }
  

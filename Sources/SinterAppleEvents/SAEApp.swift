@@ -6,19 +6,23 @@
 //
 
 import Foundation
-
-// AppKit is needed for NSRunningApplication
 import AppKit
 
 open class SAEApp : SAEObject, SAEContainer, SAEAppContext {
     
     let appObjectSpecifier: AppObjectSpecifier
     public let appTargetDescriptor: NSAppleEventDescriptor
-
+    
     public init?(identifier: String) {
-        self.appTargetDescriptor = NSAppleEventDescriptor(bundleIdentifier: identifier)
+        if let pid = NSRunningApplication.runningApplications(withBundleIdentifier: identifier).first?.processIdentifier
+        {
+            self.appTargetDescriptor  = NSAppleEventDescriptor(processIdentifier: pid)
+        } else {
+            self.appTargetDescriptor = NSAppleEventDescriptor(bundleIdentifier: identifier)
+        }
         let appOS = AppObjectSpecifier(appIdentifier: identifier)
         self.appObjectSpecifier = appOS
+    
         super.init(appContext: nil, objSpec: appOS.asTypeObjectSpecifierDescriptor())
     }
 
@@ -55,7 +59,7 @@ open class SAEApp : SAEObject, SAEContainer, SAEAppContext {
         return true
     }
    
-    override public func elements(ofClass classFcc: FourCharCode) -> [NSAppleEventDescriptor] {
+    override public func elements(ofClass classFcc: FourCharCode) async -> [NSAppleEventDescriptor] {
         let event = getDataEvent()
         
         let directObjectSpecifier = appObjectSpecifier.every(classFcc)
@@ -83,13 +87,13 @@ open class SAEApp : SAEObject, SAEContainer, SAEAppContext {
     }
 
        
-    public func documents() -> [SAEDocument] {
-        let docs = elements(ofClass: SAEDocument.fcc)
+    public func documents() async -> [SAEDocument] {
+        let docs = await elements(ofClass: SAEDocument.fcc)
         return docs.map { SAEDocument(appContext: self, objSpec: $0) }
     }
         
-    public func document(atASIndex asIndex: Int) -> SAEDocument? {
-        guard let doc = element(ofClass: FourCharCode.classDocument, atASIndex: asIndex) else {
+    public func document(atASIndex asIndex: Int) async -> SAEDocument? {
+        guard let doc = await element(ofClass: FourCharCode.classDocument, atASIndex: asIndex) else {
             return nil
         }
         return SAEDocument(appContext: self, objSpec: doc)
@@ -100,15 +104,15 @@ open class SAEApp : SAEObject, SAEContainer, SAEAppContext {
         return NSAppleEventDescriptor.null()
     }
     
-    public func make<T: SAEMakeable>(new type: T.Type, props: SAERecord? = nil) -> T? {
-       guard let nsAppleEventDescriptor = sendCreateElement(fcc: type.fcc, container: containerForCrelEvent, props: props) else {
+    public func make<T: SAEMakeable>(new type: T.Type, props: SAERecord? = nil) async -> T? {
+       guard let nsAppleEventDescriptor = await sendCreateElement(fcc: type.fcc, container: containerForCrelEvent, props: props) else {
            return nil
        }
        return T(appContext: self, objSpec: nsAppleEventDescriptor)
     }
     
-    public func crel<T: SAEMakeable>(type: T.Type, container: NSAppleEventDescriptor, props: SAERecord? = nil) -> T? {
-       guard let nsAppleEventDescriptor = sendCreateElement(fcc: type.fcc, container: container, props: props) else {
+    public func crel<T: SAEMakeable>(type: T.Type, container: NSAppleEventDescriptor, props: SAERecord? = nil) async -> T? {
+       guard let nsAppleEventDescriptor = await sendCreateElement(fcc: type.fcc, container: container, props: props) else {
            return nil
        }
        return T(appContext: self, objSpec: nsAppleEventDescriptor)
@@ -118,6 +122,8 @@ open class SAEApp : SAEObject, SAEContainer, SAEAppContext {
         return containedObject.asTypeObjectSpecifierDescriptor(container: appObjectSpecifier.asTypeObjectSpecifierDescriptor())
     }
  
-    
-// 
+    open func send(appleEvent: NSAppleEventDescriptor, options: NSAppleEventDescriptor.SendOptions? = nil, timeout: TimeInterval? = nil) async -> NSAppleEventDescriptor {
+        let result = try? appleEvent.sendEvent(options: options ?? .waitForReply, timeout: timeout ?? 60)
+        return result?.paramDescriptor(forKeyword: .result) ?? NSAppleEventDescriptor.null()
+    }
 }
