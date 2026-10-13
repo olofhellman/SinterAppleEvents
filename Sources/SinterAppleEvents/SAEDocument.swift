@@ -12,8 +12,13 @@ public extension FourCharCode {
     static var document: FourCharCode { return FourCharCode(string: "docu")  }
 }
 
-open class SAEDocument: SAEClass, SAEMakeable {
+@MainActor
+open class SAEDocument: SAEObject, SAEMakeable {
     
+    required public init(appContext: SAEAppContext?, objSpec: NSAppleEventDescriptor) {
+        super.init(appContext: appContext, objSpec: objSpec)
+    }
+
     public var name: String? {
         get async {
             guard let nameProperty = self.property(.name) else { return nil }

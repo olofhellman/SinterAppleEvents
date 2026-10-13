@@ -7,5 +7,5 @@
 
 // SAEMakeable is used as the template type for make<T: SAEMakeable>()
 
-public protocol SAEMakeable: SAEClass, SAEFourCharCodeAssociated {
+public protocol SAEMakeable: SAEObject, SAEFourCharCodeAssociated {
 }

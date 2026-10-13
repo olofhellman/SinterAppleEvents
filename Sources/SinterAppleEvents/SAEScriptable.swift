@@ -8,6 +8,7 @@
 
 import Foundation
 
+@MainActor
 open class SAEScriptable {
 
     private var saeAppContext: SAEAppContext?

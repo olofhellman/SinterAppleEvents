@@ -7,6 +7,7 @@
 
 import Foundation 
 
+@MainActor
 public class SAEObjectProperty: SAEScriptable {
     let spObject: SAEObject
     let propCode: FourCharCode

@@ -8,6 +8,7 @@
 import Foundation
 import AppKit
 
+@MainActor
 open class SAEApp : SAEObject, SAEContainer, SAEAppContext {
     
     let appObjectSpecifier: AppObjectSpecifier
@@ -35,12 +36,16 @@ open class SAEApp : SAEObject, SAEContainer, SAEAppContext {
         super.init(appContext: nil, objSpec: appOS.asTypeObjectSpecifierDescriptor())
     }
     
+    required public init(appContext: SAEAppContext?, objSpec: NSAppleEventDescriptor) {
+        fatalError("SAEApp should not be initialized with an arbitrary object specifier")
+    }
+
     // SAEObject instances which are not SAEApp have a non-nil appContext
     // and just return that for the app.  SAEApp objects are their own context
     override public var appContext: SAEAppContext {
         return self
     }
-    
+
     // activate() returns success
     public func activate() -> Bool {
         // make sure it is running.  If not, send an open app event
@@ -82,6 +87,9 @@ open class SAEApp : SAEObject, SAEContainer, SAEAppContext {
                 }
             }
             return listOfAEDesc
+        }
+        else if result.descriptorType == typeObjectSpecifier {
+            return [result]
         }
         return []
     }

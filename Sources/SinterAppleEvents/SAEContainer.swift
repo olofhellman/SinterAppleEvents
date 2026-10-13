@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 public protocol SAEContainer {
     var appContext: any SAEAppContext { get }
     var containerForCrelEvent: NSAppleEventDescriptor { get }
@@ -23,21 +24,25 @@ public protocol SAEContainer {
 
 extension SAEContainer {
         
+    @MainActor
     public func delete<T: SAEMakeable>(_ type: T.Type, _ formAndData: SAEKeyFormAndData) async {
         let cos = SAEContainedObjectSpecifier(fcc: type.fcc, formAndData: formAndData)
         await self.delete(containedObject:cos)
     }
     
+    @MainActor
     public func delete<T: SAEMakeable>(_ specificPosition: SAESpecificPosition, _ type: T.Type) async {
         let cos = SAEContainedObjectSpecifier(fcc: type.fcc, specificPosition: specificPosition)
         await self.delete(containedObject:cos)
     }
     
+    @MainActor
     public func delete(containedObject: SAEContainedObjectSpecifier) async {
         let directObject = self.objectSpecifier(for: containedObject)
         await appContext.sendDelete(directObject: directObject)
     }
     
+    @MainActor
     public func make<T: SAEMakeable>(new type: T.Type, props: SAERecord? = nil) async -> T? {
         let container = self.containerForCrelEvent
         guard let eventResult = await appContext.sendCreateElement(fcc: type.fcc, container: container, props: props) else {

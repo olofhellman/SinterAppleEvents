@@ -10,6 +10,7 @@
 
 import Foundation
 
+@MainActor
 public protocol SAEAppContext {
     var appTargetDescriptor: NSAppleEventDescriptor { get }
     
@@ -23,6 +24,7 @@ public protocol SAEAppContext {
 }
 
 extension SAEAppContext {
+    @MainActor
     public func appleEvent(eventClass: AEEventClass, eventID: AEEventID) -> NSAppleEventDescriptor {
         let event = NSAppleEventDescriptor(
             eventClass: eventClass,
@@ -34,38 +36,47 @@ extension SAEAppContext {
         return event
     }    
 
+    @MainActor
     public func requiredEvent(eventID: AEEventID) -> NSAppleEventDescriptor {
         return self.appleEvent(eventClass: AEEventClass.aevt, eventID: eventID)
     }    
 
+    @MainActor
     public func coreEvent(eventID: AEEventID) -> NSAppleEventDescriptor {
         return self.appleEvent(eventClass: AEEventClass.core, eventID: eventID)
     }    
 
+    @MainActor
     public func miscEvent(eventID: AEEventID) -> NSAppleEventDescriptor {
         return self.appleEvent(eventClass: AEEventClass.misc, eventID: eventID)
     }    
     
+    @MainActor
     public func createElementEvent() -> NSAppleEventDescriptor {
        return self.coreEvent(eventID: AEEventID.createElement)
     }
     
+    @MainActor
     public func countEvent() -> NSAppleEventDescriptor {
        return self.coreEvent(eventID: AEEventID.count)
     }
     
+    @MainActor
     public func deleteEvent() -> NSAppleEventDescriptor {
        return self.coreEvent(eventID: AEEventID.delete)
     }
     
+    @MainActor
     public func getDataEvent() -> NSAppleEventDescriptor {
        return self.coreEvent(eventID: AEEventID.getData)
     }
     
+    @MainActor
     public func setDataEvent() -> NSAppleEventDescriptor {
        return self.coreEvent(eventID: AEEventID.setData)
     }
 
+    @MainActor
     public func sendCount(_ whatClass: FourCharCode, container: NSAppleEventDescriptor) async -> Int? {
         let event = self.countEvent()
         event.setParam(container, forKeyword: .directObject)
@@ -81,6 +92,7 @@ extension SAEAppContext {
     // make() command and specify the class of the object to be created, 
     // so that the return value is of the expected type
 
+    @MainActor
     public func sendCreateElement(fcc: FourCharCode, container: NSAppleEventDescriptor, props: SAERecord? = nil) async -> NSAppleEventDescriptor? {
         let event = self.createElementEvent()
         let insertLoc = SAEInsertionLocation(obj: container, pos: kAEEnd)
@@ -93,6 +105,7 @@ extension SAEAppContext {
         return await self.send(appleEvent: event, options: nil, timeout: nil)
     }
       
+    @MainActor
     public func sendDelete(directObject: NSAppleEventDescriptor) async {
         let event = self.deleteEvent()
         event.setParam(.directObject, descriptor: directObject)
@@ -100,6 +113,7 @@ extension SAEAppContext {
         _ = await self.send(appleEvent: event, options: nil, timeout: nil)
     }
     
+    @MainActor
     public func sendGetData(directObject: NSAppleEventDescriptor) async -> NSAppleEventDescriptor {
         let event = self.getDataEvent()
         event.setParam(.directObject, descriptor: directObject)
@@ -107,6 +121,7 @@ extension SAEAppContext {
         return await self.send(appleEvent: event, options: nil, timeout: nil)
     }
     
+    @MainActor
     public func sendSetData(directObject: NSAppleEventDescriptor, newValue: NSAppleEventDescriptor) async {
         let event = self.setDataEvent()
         event.setParam(.directObject, descriptor: directObject)

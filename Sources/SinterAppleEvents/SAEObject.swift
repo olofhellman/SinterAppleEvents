@@ -8,8 +8,14 @@
 
 import Foundation
  
+@MainActor
 open class SAEObject: SAEScriptable {
-        
+    
+    // mark as required because this is needed by SAEMakeable instances
+    required override public init(appContext: SAEAppContext?, objSpec: NSAppleEventDescriptor) {
+        super.init(appContext: appContext, objSpec: objSpec)
+    }
+
     public func objectSpecifier(for containedObject: SAEContainedObjectSpecifier) -> NSAppleEventDescriptor {
         return containedObject.asTypeObjectSpecifierDescriptor(container: self.objSpec)
     }
