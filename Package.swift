@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "SinterAppleEvents",
     platforms: [
-        .macOS(.v13)
+        .macOS(.v15)
     ],
     products: [
         .library(
