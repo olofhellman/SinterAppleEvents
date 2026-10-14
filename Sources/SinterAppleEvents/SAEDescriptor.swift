@@ -14,12 +14,12 @@ public struct SAEDescriptor {
     let descriptorType: DescType
     let data: Data
     
-    init(ns: NSAppleEventDescriptor) {
+    public init(ns: NSAppleEventDescriptor) {
         self.descriptorType = ns.descriptorType
         self.data = ns.data
     }
     
-    var nsDescriptor: NSAppleEventDescriptor {
+    public var nsDescriptor: NSAppleEventDescriptor {
         guard let ns = NSAppleEventDescriptor(descriptorType: descriptorType, data: data) else {
             print ("Failed to create NSAppleEventDescriptor from SAEDescriptor")
             return NSAppleEventDescriptor.null()
