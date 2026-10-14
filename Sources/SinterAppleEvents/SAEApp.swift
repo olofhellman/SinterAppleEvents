@@ -108,7 +108,7 @@ open class SAEApp : SAEObject, SAEContainer, SAEAppContext {
         guard let doc = await element(ofClass: FourCharCode.classDocument, atASIndex: asIndex) else {
             return nil
         }
-        return SAEDocument(appContext: self, objSpec: doc)
+        return documentInit(objectSpecifier: doc)
     }
 
     
