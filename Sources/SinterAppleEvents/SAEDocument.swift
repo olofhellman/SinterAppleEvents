@@ -15,13 +15,13 @@ public extension FourCharCode {
 @MainActor
 open class SAEDocument: SAEObject, SAEMakeable {
     
-    required public init(appContext: SAEAppContext?, objSpec: NSAppleEventDescriptor) {
-        super.init(appContext: appContext, objSpec: objSpec)
+    required public init(appContext: SAEAppContext?, objectSpecifier: SAEObjectSpecifier) {
+        super.init(appContext: appContext, objectSpecifier: objectSpecifier)
     }
 
     public var name: String? {
         get async {
-            guard let nameProperty = self.property(.name) else { return nil }
+            let nameProperty = self.property(.name)  
             let gotValue = await nameProperty.getData()
             return gotValue.stringValue
         }

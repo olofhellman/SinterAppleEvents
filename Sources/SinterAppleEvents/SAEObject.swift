@@ -9,16 +9,20 @@
 import Foundation
  
 @MainActor
-open class SAEObject: SAEScriptable {
+open class SAEObject: SAEReference {
     
-    // mark as required because this is needed by SAEMakeable instances
-    required override public init(appContext: SAEAppContext?, objSpec: NSAppleEventDescriptor) {
-        super.init(appContext: appContext, objSpec: objSpec)
+    public var contentsContainerSpecifier: SAEObjectSpecifier  {
+        return saeObjectSpecifier
     }
 
-    public func objectSpecifier(for containedObject: SAEContainedObjectSpecifier) -> NSAppleEventDescriptor {
-        return containedObject.asTypeObjectSpecifierDescriptor(container: self.objSpec)
+    // mark as required because this is needed by SAEMakeable instances
+    required override public init(appContext: SAEAppContext?, objectSpecifier: SAEObjectSpecifier) {
+        super.init(appContext: appContext, objectSpecifier: objectSpecifier)
     }
+
+    //public func objectSpecifier(for containedObject: SAEContentSpecificcation) -> NSAppleEventDescriptor {
+     //   return containedObject.asTypeObjectSpecifierDescriptor(container: self.objSpec)
+    //}
 
     public func element(ofClass classFcc: FourCharCode, atASIndex idx: Int) async -> NSAppleEventDescriptor? {
         let elements = await self.elements(ofClass: classFcc)
@@ -33,7 +37,7 @@ open class SAEObject: SAEScriptable {
     public func elements(ofClass classFcc: FourCharCode) async -> [NSAppleEventDescriptor] {
         let event = appContext.coreEvent(eventID: FourCharCode.getData)
         
-        let directObjectSpecifier = objSpec.every(classFcc)
+        let directObjectSpecifier = objectSpecifier.every(classFcc)
         event.setParam(directObjectSpecifier.asTypeObjectSpecifierDescriptor(), forKeyword: .directObject)
         
         guard let reply = try? event.sendEvent(options: [], timeout: 10) else {
@@ -54,15 +58,14 @@ open class SAEObject: SAEScriptable {
                 }
             }
             return listOfAEDesc
+        } else if result.descriptorType == typeObjectSpecifier {
+            return [result]
         }
+        
         return []
     }
-    
-    public var containerForCrelEvent: NSAppleEventDescriptor {
-        return self.objSpec
-    }
 
-    public func property(_ propCode: FourCharCode) -> SAEObjectProperty? {
-        return SAEObjectProperty(spObject: self, propCode: propCode)
-     }
+    public func property(_ propCode: FourCharCode) -> SAEObjectProperty {
+        return SAEObjectProperty(saeObject: self, propCode: propCode)
+    }
 }

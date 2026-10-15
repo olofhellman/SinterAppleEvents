@@ -13,7 +13,12 @@ public class AppObjectSpecifier: SAEObjectSpecifier {
         self.appBundleIdentifier = appIdentifier
         super.init(FourCharCode.classApplication, container: nil, keyform: FourCharCode.formUniqueID, keydata: NSAppleEventDescriptor.null())
     }
-    
+ 
+    public var contentsContainerDescriptor: NSAppleEventDescriptor {
+        return NSAppleEventDescriptor.null()
+    }
+
+    // maybe we can cull this?
     override public func asTypeObjectSpecifierDescriptor() -> NSAppleEventDescriptor {
         return NSAppleEventDescriptor.null()
     }

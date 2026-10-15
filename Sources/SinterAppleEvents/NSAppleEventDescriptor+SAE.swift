@@ -48,10 +48,14 @@ public extension NSAppleEventDescriptor {
         self.setParam(typeCodeDescriptor, forKeyword: keyword)
     }
     
+    func setParam(_ keyword: FourCharCode, objectSpecifier: SAEObjectSpecifier) {
+        self.setParam(objectSpecifier.nsAppleEventDescriptor, forKeyword: keyword)
+    }
+    
     func setParam(_ keyword: FourCharCode, descriptor: NSAppleEventDescriptor) {
         self.setParam(descriptor, forKeyword: keyword)
     }
-    
+
     func every(_ whatClass: FourCharCode) -> SAEObjectSpecifier {
         
         let allEnum = NSAppleEventDescriptor(enumCode: .all)
@@ -64,6 +68,11 @@ public extension NSAppleEventDescriptor {
     func property(_ whatProp: FourCharCode) -> SAEObjectSpecifier {
         let propEnum = NSAppleEventDescriptor(enumCode: whatProp)
         return SAEObjectSpecifier(.classProperty, container: self, keyform: .formPropertyID, keydata: propEnum)
+    }
+    
+    // AEKeyword in UInt32 even though AEKeyword constants are defined as Int.  Sigh
+    func param(forKey keyword: Int) -> NSAppleEventDescriptor? {
+        return self.paramDescriptor(forKeyword: (AEKeyword(keyword)))
     }
     
     var intValue: Int? {

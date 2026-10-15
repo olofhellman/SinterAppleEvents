@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 ///      keyAEObject a typeObjectSpecifier
 ///      keyAEPosition a DescType
  
@@ -15,8 +14,8 @@ public struct SAEInsertionLocation {
     let obj: NSAppleEventDescriptor
     let pos: FourCharCode
  
-    init(obj: NSAppleEventDescriptor, pos: FourCharCode = FourCharCode.keyAEPosition) {
-        self.obj = obj
+    init(objectSpecifier: SAEObjectSpecifier, pos: FourCharCode = FourCharCode.keyAEPosition) {
+        self.obj = objectSpecifier.nsAppleEventDescriptor
         self.pos = pos
     }
     

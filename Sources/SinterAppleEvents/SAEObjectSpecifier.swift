@@ -7,6 +7,8 @@
 
 import Foundation
 
+// An SAEObjectSpecifier is not a reference, because it does not have an associated app context.
+// 
 public class SAEObjectSpecifier {
 
     let container: NSAppleEventDescriptor
@@ -21,10 +23,30 @@ public class SAEObjectSpecifier {
         self.keydata = keydata
     }
     
+    public init?(nsAppleEventDescriptor: NSAppleEventDescriptor) {
+        guard let nsRecord = nsAppleEventDescriptor.coerce(toDescriptorType: typeAERecord) else {
+            return nil
+        }
+
+        self.classWanted = nsRecord.param(forKey: keyAEDesiredClass)?.typeCodeValue ?? typeNull
+        self.container = nsRecord.param(forKey: keyAEContainer) ?? NSAppleEventDescriptor.null()
+        self.keyform = nsRecord.param(forKey: keyAEKeyForm)?.enumCodeValue ?? 0
+        self.keydata = nsRecord.param(forKey: keyAEKeyData) ?? NSAppleEventDescriptor.null()
+    }
+ 
+    
     public func every(_ whatClass: FourCharCode) -> SAEObjectSpecifier {
         return self.asTypeObjectSpecifierDescriptor().every(whatClass);
     }
- 
+    
+    public func property(_ whatProperty: FourCharCode) -> SAEObjectSpecifier {
+        return self.asTypeObjectSpecifierDescriptor().property(whatProperty);
+    }
+
+    public var nsAppleEventDescriptor: NSAppleEventDescriptor {
+        return self.asTypeObjectSpecifierDescriptor()
+    }
+    
     public func asTypeObjectSpecifierDescriptor() -> NSAppleEventDescriptor {
         let recordDescriptor = NSAppleEventDescriptor.record()
  
@@ -35,7 +57,4 @@ public class SAEObjectSpecifier {
         let objSpec = recordDescriptor.coerce(toDescriptorType: typeObjectSpecifier)
         return  objSpec ?? NSAppleEventDescriptor.null()
     }
- 
-
-    
 }

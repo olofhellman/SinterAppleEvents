@@ -16,11 +16,11 @@ public protocol SAEAppContext {
     
     func send(appleEvent: NSAppleEventDescriptor, options: NSAppleEventDescriptor.SendOptions?, timeout: TimeInterval?) async -> NSAppleEventDescriptor
     
-    func sendCount(_ whatClass: FourCharCode, container: NSAppleEventDescriptor) async -> Int?
-    func sendCreateElement(fcc: FourCharCode, container: NSAppleEventDescriptor, props: SAERecord?) async -> NSAppleEventDescriptor?
-    func sendDelete(directObject: NSAppleEventDescriptor) async
-    func sendGetData(directObject: NSAppleEventDescriptor) async -> NSAppleEventDescriptor
-    func sendSetData(directObject: NSAppleEventDescriptor, newValue: NSAppleEventDescriptor) async
+    func sendCount(_ whatClass: FourCharCode, container: SAEObjectSpecifier) async -> Int?
+    func sendCreateElement(fcc: FourCharCode, container: SAEObjectSpecifier, props: SAERecord?) async -> NSAppleEventDescriptor?
+    func sendDelete(directObject: SAEObjectSpecifier) async
+    func sendGetData(directObject: SAEObjectSpecifier) async -> NSAppleEventDescriptor
+    func sendSetData(directObject: SAEObjectSpecifier, newValue: NSAppleEventDescriptor) async
 }
 
 extension SAEAppContext {
@@ -77,9 +77,9 @@ extension SAEAppContext {
     }
 
     @MainActor
-    public func sendCount(_ whatClass: FourCharCode, container: NSAppleEventDescriptor) async -> Int? {
+    public func sendCount(_ whatClass: FourCharCode, container: SAEObjectSpecifier) async -> Int? {
         let event = self.countEvent()
-        event.setParam(container, forKeyword: .directObject)
+        event.setParam(container.nsAppleEventDescriptor, forKeyword: .directObject)
         let whatClassParam = NSAppleEventDescriptor(typeCode: whatClass)
         event.setParam(whatClassParam, forKeyword: .objectClass)
   
@@ -93,9 +93,9 @@ extension SAEAppContext {
     // so that the return value is of the expected type
 
     @MainActor
-    public func sendCreateElement(fcc: FourCharCode, container: NSAppleEventDescriptor, props: SAERecord? = nil) async -> NSAppleEventDescriptor? {
+    public func sendCreateElement(fcc: FourCharCode, container: SAEObjectSpecifier, props: SAERecord? = nil) async -> NSAppleEventDescriptor? {
         let event = self.createElementEvent()
-        let insertLoc = SAEInsertionLocation(obj: container, pos: kAEEnd)
+        let insertLoc = SAEInsertionLocation(objectSpecifier: container, pos: kAEEnd)
         event.setParam(.objectClass, typeCode: fcc)
         event.setParam(.insertHere, descriptor: insertLoc.asNSAppleEventDescriptor())
         if let props {
@@ -106,25 +106,25 @@ extension SAEAppContext {
     }
       
     @MainActor
-    public func sendDelete(directObject: NSAppleEventDescriptor) async {
+    public func sendDelete(directObject: SAEObjectSpecifier) async {
         let event = self.deleteEvent()
-        event.setParam(.directObject, descriptor: directObject)
+        event.setParam(.directObject, objectSpecifier: directObject)
         
         _ = await self.send(appleEvent: event, options: nil, timeout: nil)
     }
     
     @MainActor
-    public func sendGetData(directObject: NSAppleEventDescriptor) async -> NSAppleEventDescriptor {
+    public func sendGetData(directObject: SAEObjectSpecifier) async -> NSAppleEventDescriptor {
         let event = self.getDataEvent()
-        event.setParam(.directObject, descriptor: directObject)
+        event.setParam(.directObject, objectSpecifier: directObject)
         
         return await self.send(appleEvent: event, options: nil, timeout: nil)
     }
     
     @MainActor
-    public func sendSetData(directObject: NSAppleEventDescriptor, newValue: NSAppleEventDescriptor) async {
+    public func sendSetData(directObject: SAEObjectSpecifier, newValue: NSAppleEventDescriptor) async {
         let event = self.setDataEvent()
-        event.setParam(.directObject, descriptor: directObject)
+        event.setParam(.directObject, objectSpecifier: directObject)
         event.setParam(.data, descriptor: newValue)
         _ = await self.send(appleEvent: event, options: nil, timeout: nil)
     }

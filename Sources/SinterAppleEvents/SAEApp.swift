@@ -24,7 +24,7 @@ open class SAEApp : SAEObject, SAEContainer, SAEAppContext {
         let appOS = AppObjectSpecifier(appIdentifier: identifier)
         self.appObjectSpecifier = appOS
     
-        super.init(appContext: nil, objSpec: appOS.asTypeObjectSpecifierDescriptor())
+        super.init(appContext: nil, objectSpecifier: appOS)
     }
 
     // targets a running process directly by pid, useful for apps which are not
@@ -33,10 +33,10 @@ open class SAEApp : SAEObject, SAEContainer, SAEAppContext {
         self.appTargetDescriptor = NSAppleEventDescriptor(processIdentifier: pid)
         let appOS = AppObjectSpecifier(appIdentifier: "")
         self.appObjectSpecifier = appOS
-        super.init(appContext: nil, objSpec: appOS.asTypeObjectSpecifierDescriptor())
+        super.init(appContext: nil, objectSpecifier: appOS)
     }
     
-    required public init(appContext: SAEAppContext?, objSpec: NSAppleEventDescriptor) {
+    required public init(appContext: SAEAppContext?, objectSpecifier: SAEObjectSpecifier) {
         fatalError("SAEApp should not be initialized with an arbitrary object specifier")
     }
 
@@ -95,43 +95,64 @@ open class SAEApp : SAEObject, SAEContainer, SAEAppContext {
     }
 
     // app class should override this to return the appropriate SAEDocument subclass for each document
-    open func documentInit(objectSpecifier: NSAppleEventDescriptor) -> SAEDocument {
-        return SAEDocument(appContext: self, objSpec: objectSpecifier)
+    // descriptor should be a typeObjectSpecifier NSAppleEventDescriptor
+    open func documentInit(objectSpecifier: SAEObjectSpecifier) -> SAEDocument? {
+        return SAEDocument(appContext: self, objectSpecifier: objectSpecifier)
+    }
+
+    // app class should probably not override this
+    open func documentInit(descriptor: NSAppleEventDescriptor) -> SAEDocument? {
+        guard let objectSpecifier = SAEObjectSpecifier(nsAppleEventDescriptor: descriptor) else {
+            print("failed to get an object specifier")
+            return nil
+        }
+        return documentInit(objectSpecifier: objectSpecifier)
     }
 
     public func documents() async -> [SAEDocument] {
         let docs = await elements(ofClass: SAEDocument.fcc)
-        return docs.map { documentInit (objectSpecifier: $0) }
+        return docs.compactMap { documentInit (descriptor: $0) }
     }
         
     public func document(atASIndex asIndex: Int) async -> SAEDocument? {
         guard let doc = await element(ofClass: FourCharCode.classDocument, atASIndex: asIndex) else {
             return nil
         }
-        return documentInit(objectSpecifier: doc)
+        return documentInit(descriptor: doc)
     }
 
-    
-    public override var containerForCrelEvent: NSAppleEventDescriptor {
+    public override var contentsContainerDescriptor: NSAppleEventDescriptor {
         return NSAppleEventDescriptor.null()
     }
     
+    public override var contentsContainerSpecifier: SAEObjectSpecifier {
+        return appObjectSpecifier
+    }
+
     public func make<T: SAEMakeable>(new type: T.Type, props: SAERecord? = nil) async -> T? {
-       guard let nsAppleEventDescriptor = await sendCreateElement(fcc: type.fcc, container: containerForCrelEvent, props: props) else {
+       guard let nsAppleEventDescriptor = await sendCreateElement(fcc: type.fcc, container: contentsContainerSpecifier, props: props) else {
            return nil
        }
-       return T(appContext: self, objSpec: nsAppleEventDescriptor)
-    }
-    
-    public func crel<T: SAEMakeable>(type: T.Type, container: NSAppleEventDescriptor, props: SAERecord? = nil) async -> T? {
-       guard let nsAppleEventDescriptor = await sendCreateElement(fcc: type.fcc, container: container, props: props) else {
+       guard let objectSpecifier = SAEObjectSpecifier( nsAppleEventDescriptor: nsAppleEventDescriptor) else {
+           print("make<T: SAEMakeable> failed promoting NSAppleEventDescriptor to SAEObjectSpecifier")
            return nil
        }
-       return T(appContext: self, objSpec: nsAppleEventDescriptor)
+       return T(appContext: self, objectSpecifier: objectSpecifier)
     }
     
-    override public func objectSpecifier(for containedObject: SAEContainedObjectSpecifier) -> NSAppleEventDescriptor {
-        return containedObject.asTypeObjectSpecifierDescriptor(container: appObjectSpecifier.asTypeObjectSpecifierDescriptor())
+    public func crel<T: SAEMakeable>(type: T.Type, container: SAEObjectSpecifier, props: SAERecord? = nil) async -> T? {
+        guard let nsAppleEventDescriptor = await sendCreateElement(fcc: type.fcc, container: container, props: props) else {
+            return nil
+        }
+        guard let objectSpecifier = SAEObjectSpecifier( nsAppleEventDescriptor: nsAppleEventDescriptor) else {
+            print("crel<T: SAEMakeable> failed promoting NSAppleEventDescriptor to SAEObjectSpecifier")
+            return nil
+        }
+        return T(appContext: self, objectSpecifier: objectSpecifier)
+    }
+    
+    public func objectSpecifier(for contents: SAEContentSpecification) -> SAEObjectSpecifier {
+        return SAEObjectSpecifier(contents.fcc, container: contentsContainerDescriptor, keyform: contents.keyform, keydata: contents.keydata)
     }
  
     open func send(appleEvent: NSAppleEventDescriptor, options: NSAppleEventDescriptor.SendOptions? = nil, timeout: TimeInterval? = nil) async -> NSAppleEventDescriptor {
