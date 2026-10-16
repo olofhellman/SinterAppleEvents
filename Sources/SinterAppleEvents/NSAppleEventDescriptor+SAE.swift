@@ -57,14 +57,21 @@ public extension NSAppleEventDescriptor {
     }
 
     func every(_ whatClass: FourCharCode) -> SAEObjectSpecifier {
-        
         let allEnum = NSAppleEventDescriptor(enumCode: .all)
         guard let allAbsoluteOrdinal = NSAppleEventDescriptor(descriptorType: typeAbsoluteOrdinal, data: allEnum.data) else {
             fatalError("Failed to create NSAppleEventDescriptor for absolute ordinal")
         }
         return SAEObjectSpecifier(whatClass, container: self, keyform: .formAbsolutePosition, keydata: allAbsoluteOrdinal)
     }
-    
+
+    func first(_ whatClass: FourCharCode) -> SAEObjectSpecifier {
+        let firstEnum = NSAppleEventDescriptor(enumCode: .first)
+        guard let firstAbsoluteOrdinal = NSAppleEventDescriptor(descriptorType: typeAbsoluteOrdinal, data: firstEnum.data) else {
+            fatalError("Failed to create NSAppleEventDescriptor for absolute ordinal")
+        }
+        return SAEObjectSpecifier(whatClass, container: self, keyform: .formAbsolutePosition, keydata: firstAbsoluteOrdinal)
+    }
+
     func property(_ whatProp: FourCharCode) -> SAEObjectSpecifier {
         let propEnum = NSAppleEventDescriptor(enumCode: whatProp)
         return SAEObjectSpecifier(.classProperty, container: self, keyform: .formPropertyID, keydata: propEnum)
@@ -75,6 +82,51 @@ public extension NSAppleEventDescriptor {
         return self.paramDescriptor(forKeyword: (AEKeyword(keyword)))
     }
     
+    func set(double: Double, for keyword: FourCharCode) {
+        let nsDesc = NSAppleEventDescriptor(double: double)
+        return self.setParam(nsDesc, forKeyword: (AEKeyword(keyword)))
+    }
+    
+    func set(float: Float, for keyword: FourCharCode) {
+        let nsDesc = NSAppleEventDescriptor(double: Double(float))
+        return self.setParam(nsDesc, forKeyword: (AEKeyword(keyword)))
+    }
+    
+    func set(int: Int, for keyword: FourCharCode) {
+        guard let nsDesc = NSAppleEventDescriptor(int: int) else {
+            print ("error calling NSAppleEventDescriptor(int:)")
+            return
+        }
+        return self.setParam(nsDesc, forKeyword: (AEKeyword(keyword)))
+    }
+
+    func int(for keyword: FourCharCode) -> Int? {
+        let param = self.paramDescriptor(forKeyword: keyword)
+        return param?.intValue
+    }
+    
+    func double(for keyword: FourCharCode) -> Double? {
+        let param = self.paramDescriptor(forKeyword: keyword)
+        return param?.doubleValue
+    }
+
+    func float(for keyword: FourCharCode) -> Float? {
+        let param = self.paramDescriptor(forKeyword: keyword)
+        guard let d = param?.doubleValue else { return nil }
+        return Float(d)
+    }
+
+    var floatValue: Float {
+        return Float(self.doubleValue)
+    }
+
+    func forEach( _ body: (NSAppleEventDescriptor) -> Void) {
+        for n in 1...numberOfItems {
+            if let nthDesc = self.atIndex(n) {
+                body(nthDesc)
+            }
+        }
+    }
     var intValue: Int? {
         switch descriptorType {
         case typeSInt64:

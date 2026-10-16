@@ -39,6 +39,10 @@ public class SAEObjectSpecifier {
         return self.asTypeObjectSpecifierDescriptor().every(whatClass);
     }
     
+    public func first(_ whatClass: FourCharCode) -> SAEObjectSpecifier {
+        return self.asTypeObjectSpecifierDescriptor().first(whatClass);
+    }
+    
     public func property(_ whatProperty: FourCharCode) -> SAEObjectSpecifier {
         return self.asTypeObjectSpecifierDescriptor().property(whatProperty);
     }

@@ -26,6 +26,22 @@ public protocol SAEContainer {
 
 extension SAEContainer {
     
+    @MainActor
+    public func every(_ whatClass: FourCharCode) -> SAEObjectSpecifier {
+        return contentsContainerDescriptor.every(whatClass);
+    }
+    
+    @MainActor
+    public func first(_ whatClass: FourCharCode) -> SAEObjectSpecifier {
+        return contentsContainerDescriptor.first(whatClass);
+    }
+    
+    @MainActor
+    public func property(_ whatProperty: FourCharCode) -> SAEObjectSpecifier {
+        return contentsContainerDescriptor.property(whatProperty);
+    }
+
+    @MainActor
     public var contentsContainerDescriptor: NSAppleEventDescriptor  {
         return contentsContainerSpecifier.nsAppleEventDescriptor
     }
